@@ -1,0 +1,9 @@
+[25/09/2023]
+- New project-> Dynamic web: tên project là home
+- Window -> Preferences -> JSP Files : đổi encoding thành UTF-8
+- Dowload ZenBlog(BootstrapMade)
+- Đổi font chữ
+- Xóa các file thừa ở bootstrap js và bootstrap css
+- đổi dường dẫn đến các file css, js, image(/home/....)
+- Cắt các đoạn template của file index thành file jsp riêng và include vào index.js
+[--/--/----]
