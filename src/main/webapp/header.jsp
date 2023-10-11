@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<jsp:include page="data.jsp" flush="true"></jsp:include>
 <!DOCTYPE html>
 <html lang="en">
 

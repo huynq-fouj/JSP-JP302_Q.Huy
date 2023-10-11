@@ -36,7 +36,7 @@ public class ArticleImpl extends BasicImpl implements Article {
 		StringBuilder sql = new StringBuilder();
 		
 		//New
-		sql.append("SELECT * FORM tblarticle ");
+		sql.append("SELECT * FROM tblarticle ");
 		sql.append("LEFT JOIN tblcategory ON article_category_id=category_id ");
 		sql.append("LEFT JOIN tblsection ON category_section_id=section_id ");
 		sql.append("WHERE (article_delete=0) AND (article_enable=1) ");
@@ -47,7 +47,7 @@ public class ArticleImpl extends BasicImpl implements Article {
 		sql.append("; ");
 		
 		//Trending
-		sql.append("SELECT * FORM tblarticle ");
+		sql.append("SELECT * FROM tblarticle ");
 		sql.append("LEFT JOIN tblcategory ON article_category_id=category_id ");
 		sql.append("LEFT JOIN tblsection ON category_section_id=section_id ");
 		sql.append("WHERE (article_delete=0) AND (article_enable=1) ");
@@ -71,7 +71,7 @@ public class ArticleImpl extends BasicImpl implements Article {
 				sid = (short) similar.getSection_id();
 			}
 			if(sid > 0) {
-				tmp.append("(article_section_id=").append(sid).append(")");
+				tmp.append("(article_section_id=").append(sid).append(") ");
 			}
 			short cid = similar.getArticle_category_id();
 			if(cid == 0) {
@@ -81,7 +81,7 @@ public class ArticleImpl extends BasicImpl implements Article {
 				if(!tmp.toString().equalsIgnoreCase("")) {
 					tmp.append(" AND ");
 				}
-				tmp.append("article_category_id=").append(cid).append(")");
+				tmp.append("(article_category_id=").append(cid).append(") ");
 			}
 		}
 		
