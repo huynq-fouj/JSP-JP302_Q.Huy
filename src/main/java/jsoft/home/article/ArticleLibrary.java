@@ -1,11 +1,15 @@
 package jsoft.home.article;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.javatuples.Pair;
+import org.javatuples.Quartet;
+import org.javatuples.Triplet;
 import org.javatuples.Unit;
 
 import jsoft.objects.ArticleObject;
+import jsoft.objects.CategoryObject;
 
 public class ArticleLibrary {
 
@@ -86,12 +90,21 @@ public class ArticleLibrary {
 		return view;
 	}
 
-	public static ArrayList<String> viewNews(Pair<ArrayList<ArticleObject>, ArrayList<ArticleObject>> datas) {
+	public static ArrayList<String> viewNews(
+			Quartet<ArrayList<ArticleObject>, ArrayList<ArticleObject>, ArrayList<CategoryObject>, HashMap<String, Integer>> datas,
+			Triplet<ArticleObject, Short, Byte> infors
+	) {
 		ArrayList<String> view = new ArrayList<>();
 
 		ArrayList<ArticleObject> items = datas.getValue0();
 		ArrayList<ArticleObject> most_items = datas.getValue1();
-
+		ArrayList<CategoryObject> cates = datas.getValue2();
+		HashMap<String, Integer> tags = datas.getValue3();
+		
+		ArticleObject similar = infors.getValue0();
+		short page = infors.getValue1();
+		byte totalperpage = infors.getValue2();
+		
 		StringBuilder tmp = new StringBuilder();
 
 		tmp.append("<section>");
@@ -99,7 +112,7 @@ public class ArticleLibrary {
 		tmp.append("<div class=\"row\">");
 
 		tmp.append("<div class=\"col-md-9\" data-aos=\"fade-up\">");
-		tmp.append("<h3 class=\"category-title\">Category: Business</h3>");
+		tmp.append(ArticleLibrary.viewCateOptions(cates, similar));
 		//Moi nhat
 		items.forEach(item -> {
 			tmp.append("<div class=\"d-md-flex post-entry-2 half\">");
@@ -199,17 +212,20 @@ public class ArticleLibrary {
 		tmp.append("</div><!-- End Video -->");
 
 		tmp.append("<div class=\"aside-block\">");
-		tmp.append("<h3 class=\"aside-title\">Categories</h3>");
+		tmp.append("<h3 class=\"aside-title\">Thể loại</h3>");
 		tmp.append("<ul class=\"aside-links list-unstyled\">");
-		tmp.append("<li><a href=\"category.html\"><i class=\"bi bi-chevron-right\"></i> Business</a></li>");
+		cates.forEach(item -> {		
+			tmp.append("<li><a href=\"/home/tin-tuc/?cid="+item.getCategory_id()+"\"><i class=\"bi bi-chevron-right\"></i>"+item.getCategory_name()+"</a></li>");
+		});
 		tmp.append("</ul>");
 		tmp.append("</div><!-- End Categories -->");
 
 		tmp.append("<div class=\"aside-block\">");
 		tmp.append("<h3 class=\"aside-title\">Tags</h3>");
 		tmp.append("<ul class=\"aside-tags list-unstyled\">");
-
-		tmp.append("<li><a href=\"category.html\">Business</a></li>");
+		tags.forEach((tag, count) -> {
+			tmp.append("<li><a href=\"/home/tin-tuc/?tag="+tag+"\">"+ tag +" ("+ count +")</a></li>");
+		});
 
 		tmp.append("</ul>");
 		tmp.append("</div><!-- End Tags -->");
@@ -221,6 +237,43 @@ public class ArticleLibrary {
 		tmp.append("</section>");
 		view.add(tmp.toString());
 		return view;
+	}
+	
+	private static StringBuilder viewCateOptions(ArrayList<CategoryObject> cates, ArticleObject similar) {
+		StringBuilder tmp = new StringBuilder();
+		tmp.append("<div class=\"row align-items-center mb-3\">");
+		tmp.append("<div class=\"col-sm-2\">");
+		tmp.append("<h3 class=\"fs-5\">Thể loại: </h3>");
+		tmp.append("</div>");
+		tmp.append("<div class=\"col-sm-4\">");
+		tmp.append("<form method=\"\" action=\"\">");
+		tmp.append("<select class=\"form-select\" name=\"slcCateId\" onChange=\"refreshCate(this.form)\">");
+		tmp.append("<option value=\"0\">Chọn</option>");
+		cates.forEach(item -> {
+			if(item.getCategory_id() == similar.getArticle_category_id()) {
+				tmp.append("<option value=\""+item.getCategory_id()+"\" selected>");
+			}else {
+				tmp.append("<option value=\""+item.getCategory_id()+"\">");
+			}
+			tmp.append(item.getCategory_name());
+			tmp.append("</option>");
+		});
+		tmp.append("</select>");
+		tmp.append("</form>");
+		tmp.append("</div>");
+		tmp.append("</div>");
+		//Script
+		tmp.append("""
+		<script language=\"javascript\">
+			function refreshCate(fn) {
+				let cate_id =  fn.slcCateId.value;
+				fn.method = 'post';
+				fn.action = `/home/tin-tuc/?cid=${cate_id}`;
+				fn.submit();
+			}
+		</script>
+		""");
+		return tmp;
 	}
 
 }

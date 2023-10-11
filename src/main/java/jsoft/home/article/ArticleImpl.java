@@ -57,6 +57,17 @@ public class ArticleImpl extends BasicImpl implements Article {
 		sql.append("LIMIT ").append(at).append(", ").append(totalperpage);
 		sql.append("; ");
 		
+		//Danh sách thể loại
+		sql.append("SELECT * FROM tblcategory ");
+		sql.append("WHERE (category_section_id=").append(similar.getArticle_section_id() + ") ");
+		sql.append("ORDER BY category_name ASC");
+		sql.append("; ");
+		
+		//Danh sách tag bài viết 
+		sql.append("SELECT article_tag FROM tblarticle ");
+		sql.append("WHERE (article_section_id=").append(similar.getArticle_section_id()).append(") ");
+		sql.append("ORDER BY article_visited DESC ");
+		sql.append("; ");
 		return this.getReList(sql.toString());
 	}
 	

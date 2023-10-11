@@ -3,13 +3,18 @@ package jsoft.home.article;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.stream.Collectors;
 
 import org.javatuples.Pair;
+import org.javatuples.Quartet;
 import org.javatuples.Triplet;
 import org.javatuples.Unit;
 
 import jsoft.ConnectionPool;
+import jsoft.library.Utilities;
 import jsoft.objects.ArticleObject;
+import jsoft.objects.CategoryObject;
 
 public class ArticleModel {
 	
@@ -61,6 +66,61 @@ public class ArticleModel {
 		ArrayList<ResultSet> res = this.a.getArticles(infors);
 		//Lấy danh sách bài viết mới nhất và bài viết xem nhiều nhất
 		return new Pair<>(this.getAritcleObjects(res.get(0)), this.getAritcleObjects(res.get(1)));
+	}
+	
+	public Quartet<ArrayList<ArticleObject>, ArrayList<ArticleObject>, ArrayList<CategoryObject>, HashMap<String, Integer>> getNewArticleObjects(Triplet<ArticleObject, Short, Byte> infors) {
+		ArrayList<ResultSet> res = this.a.getArticles(infors);
+		//Lấy danh sách bài viết mới nhất và bài viết xem nhiều nhất
+		ArrayList<CategoryObject> cates = new ArrayList<>();
+		CategoryObject cate = null;
+		ResultSet rs = res.get(2);
+		if(rs != null ) {
+			try {
+				while(rs.next()) {
+					cate = new CategoryObject();
+					cate.setCategory_id(rs.getShort("category_id"));
+					cate.setCategory_name(rs.getString("category_name"));
+					cates.add(cate);
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		HashMap<String, Integer> tags = new HashMap<>();
+		rs = res.get(3);
+		String tag;
+		String[] tag_list;
+		if(rs != null ) {
+			try {
+				while(rs.next()) {
+					tag = rs.getString("article_tag");
+					tag = Utilities.decode(tag).toLowerCase();
+					tag_list = tag.split(",");
+					for(String word: tag_list) {
+						word = word.trim();
+						if(!"".equals(word)){
+							if(tags.containsKey(word)) {
+								tags.replace(word, tags.get(word) + 1);
+							}else {
+								tags.put(word, 1);
+							}
+						}
+					}
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		tags.keySet().removeAll(
+				tags.entrySet().stream()
+					.filter(a -> a.getValue()
+							.compareTo(3) < 0).map(e -> e.getKey())
+								.collect(Collectors.toList()));
+		
+		return new Quartet<>(this.getAritcleObjects(res.get(0)), this.getAritcleObjects(res.get(1)), cates, tags);
 	}
 	
 	private ArrayList<ArticleObject> getAritcleObjects(ResultSet rs){

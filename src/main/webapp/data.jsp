@@ -3,7 +3,7 @@
 <%@ page import="jsoft.*,jsoft.objects.*"%>
 <%@ page import="java.util.*,org.javatuples.*"%>
 <%@ page import="jsoft.home.*, jsoft.home.article.*"%>
-
+<%@ page import="jsoft.library.*"%>
 <%
 //xác địn tập ký tự cần lấy
 request.setCharacterEncoding("utf-8");
@@ -19,6 +19,9 @@ if(cp == null){
 ArticleObject similar = new ArticleObject();
 similar.setArticle_section_id((short)2);
 if(at != -1) {
+	
+	short cid = Utilities.getShortParam(request, "cid");
+	similar.setArticle_category_id(cid);
 	ArrayList<String> news = ac.viewNew(new Triplet<>(similar, (short) 1, (byte) 10));
 	if(news.size() > 0) {
 		//Gửi cấu trúc hiển thị vào phiên
