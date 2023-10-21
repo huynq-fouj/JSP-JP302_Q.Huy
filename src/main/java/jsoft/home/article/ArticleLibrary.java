@@ -5,6 +5,8 @@ import java.util.HashMap;
 
 import org.javatuples.Pair;
 import org.javatuples.Quartet;
+import org.javatuples.Quintet;
+import org.javatuples.Sextet;
 import org.javatuples.Triplet;
 import org.javatuples.Unit;
 
@@ -91,19 +93,28 @@ public class ArticleLibrary {
 	}
 
 	public static ArrayList<String> viewNews(
-			Quartet<ArrayList<ArticleObject>, ArrayList<ArticleObject>, ArrayList<CategoryObject>, HashMap<String, Integer>> datas,
-			Triplet<ArticleObject, Short, Byte> infors
-	) {
+			Sextet<ArrayList<ArticleObject>, 
+				ArrayList<ArticleObject>, 
+				ArrayList<CategoryObject>, 
+				HashMap<String, Integer>, 
+				Integer, 
+				ArrayList<ArticleObject>> datas,
+			Quartet<ArticleObject, Short, Byte, Boolean> infors) {
+		
 		ArrayList<String> view = new ArrayList<>();
 
 		ArrayList<ArticleObject> items = datas.getValue0();
 		ArrayList<ArticleObject> most_items = datas.getValue1();
 		ArrayList<CategoryObject> cates = datas.getValue2();
 		HashMap<String, Integer> tags = datas.getValue3();
+		ArrayList<ArticleObject> pitems = datas.getValue5();//Danh sách bài viết mới nhất có phân trang
+		int total = datas.getValue4();
 		
 		ArticleObject similar = infors.getValue0();
 		short page = infors.getValue1();
 		byte totalperpage = infors.getValue2();
+		
+		String url = "/home/tin-tuc/?cid="+similar.getArticle_category_id()+"&";
 		
 		StringBuilder tmp = new StringBuilder();
 
@@ -114,7 +125,7 @@ public class ArticleLibrary {
 		tmp.append("<div class=\"col-md-9\" data-aos=\"fade-up\">");
 		tmp.append(ArticleLibrary.viewCateOptions(cates, similar));
 		//Moi nhat
-		items.forEach(item -> {
+		pitems.forEach(item -> {
 			tmp.append("<div class=\"d-md-flex post-entry-2 half\">");
 			tmp.append("<a href=\"/home/tin-tuc/?id="+item.getArticle_id()+"\" class=\"me-4 thumbnail\">");
 			tmp.append("<img src=\""+item.getArticle_image()+"\" alt=\""+item.getArticle_title()+"\" class=\"img-fluid\">");
@@ -135,19 +146,26 @@ public class ArticleLibrary {
 			tmp.append("</div>");
 		});
 		//
-		tmp.append("<div class=\"text-start py-4\">");
-		tmp.append("<div class=\"custom-pagination\">");
-		tmp.append("<a href=\"#\" class=\"prev\">Prevous</a>");
-		tmp.append("<a href=\"#\" class=\"active\">1</a>");
-		tmp.append("<a href=\"#\">2</a>");
-		tmp.append("<a href=\"#\">3</a>");
-		tmp.append("<a href=\"#\">4</a>");
-		tmp.append("<a href=\"#\">5</a>");
-		tmp.append("<a href=\"#\" class=\"next\">Next</a>");
-		tmp.append("</div>");
-		tmp.append("</div>");
-		tmp.append("</div>");
+		//Phan trang
+		
+		tmp.append(ArticleLibrary.getPagination(url, total, page, totalperpage));
+		
+		//Ket thuc phan trang
+		tmp.append("</div>");//col-md-9
 
+		//SideBar
+		tmp.append(ArticleLibrary.viewSidebar(items, most_items, cates, tags));
+
+		tmp.append("</div>");
+		tmp.append("</div>");
+		tmp.append("</section>");
+		view.add(tmp.toString());
+		return view;
+	}
+	
+	private static StringBuilder viewSidebar(ArrayList<ArticleObject> items, ArrayList<ArticleObject> most_items, ArrayList<CategoryObject> cates, HashMap<String, Integer> tags) {
+		StringBuilder tmp = new StringBuilder();
+		//<!---SideBar--->
 		tmp.append("<div class=\"col-md-3\">");
 		//SideBar
 		tmp.append("<div class=\"aside-block\">");
@@ -168,7 +186,6 @@ public class ArticleLibrary {
 		tmp.append(
 				"<div class=\"tab-pane fade show active\" id=\"pills-trending\" role=\"tabpanel\" aria-labelledby=\"pills-trending-tab\">");
 		most_items.forEach(item -> {
-			if(most_items.indexOf(item) < 5) {
 				tmp.append("<div class=\"post-entry-1 border-bottom\">");
 				tmp.append(
 						"<div class=\"post-meta\"><span class=\"date\">"+item.getCategory_name()+"</span> <span class=\"mx-1\">&bullet;</span> <span>"+item.getArticle_created_date()+"</span></div>");
@@ -176,7 +193,6 @@ public class ArticleLibrary {
 						"<h2 class=\"mb-2\"><a href=\"/home/tin-tuc/?id="+item.getArticle_id()+"\">"+item.getArticle_title()+"</a></h2>");
 				tmp.append("<span class=\"author mb-3 d-block\">"+item.getArticle_author_name()+"</span>");
 				tmp.append("</div>");
-			}
 		});
 
 		tmp.append("</div>");
@@ -230,13 +246,9 @@ public class ArticleLibrary {
 		tmp.append("</ul>");
 		tmp.append("</div><!-- End Tags -->");
 
-		tmp.append("</div>");
-
-		tmp.append("</div>");
-		tmp.append("</div>");
-		tmp.append("</section>");
-		view.add(tmp.toString());
-		return view;
+		tmp.append("</div>");//Col-md-3
+		
+		return tmp;
 	}
 	
 	private static StringBuilder viewCateOptions(ArrayList<CategoryObject> cates, ArticleObject similar) {
@@ -274,6 +286,124 @@ public class ArticleLibrary {
 		</script>
 		""");
 		return tmp;
+	}
+	
+	private static StringBuilder getPagination(String url, int total, short page, byte totalperpage) {
+		short pages = (short) (total/totalperpage);
+		if(total % totalperpage != 0) pages ++;
+		if(page > pages || page <= 0) page = 1;
+		
+		StringBuilder tmp = new StringBuilder();
+		
+		tmp.append("<div class=\"text-start py-4\">");
+		tmp.append("<div class=\"custom-pagination\">");
+		
+		if(pages > 1) {
+			if(page > 1) {
+				tmp.append("<a href=\""+url+"page="+(page - 1)+"\" class=\"prev\">Prevous</a>");
+				tmp.append("<a href=\""+url+"page=1\">1</a>");
+			}else {
+				tmp.append("<a href=\"#\" class=\"prev disabled\">Prevous</a>");
+				tmp.append("<a href=\"#\" class=\"active\">1</a>");
+			}
+			
+			//Left current
+			String leftCurrent = "";
+			int count = 0;
+			for(int i = page - 1; i > 1; i--) {
+				leftCurrent = "<a href=\""+url+"page="+i+"\">"+i+"</a>" + leftCurrent;
+				if(++count >= 1) {
+					break;
+				}
+			}
+			if(page > 3) {
+				leftCurrent = "<a href=\"#\" class=\"disabled\">...</a>" + leftCurrent;
+			}
+			tmp.append(leftCurrent);
+			//End left current
+			//Current
+			if(page > 1 && page < pages) {
+				tmp.append("<a href=\"#\" class=\"active\">"+page+"</a>");
+			}
+			//Right current
+			String rightCurrent = "";
+			count = 0;
+			for(int i = page + 1; i < pages; i++) {
+				rightCurrent += "<a href=\""+url+"page="+i+"\">"+i+"</a>";
+				if(++count >= 1) {
+					break;
+				}
+			}
+			if(page < pages - 2) {
+				rightCurrent += "<a href=\"#\" class=\"disabled\">...</a>";
+			}
+			tmp.append(rightCurrent);
+			//End right current
+			
+			if(page < pages) {
+				tmp.append("<a href=\""+url+"page="+pages+"\">"+pages+"</a>");
+				tmp.append("<a href=\""+url+"page="+(page + 1)+"\" class=\"next\">Next</a>");
+			}else {
+				tmp.append("<a href=\"#\" class=\"active\">"+pages+"</a>");
+				tmp.append("<a href=\"#\" class=\"next disabled\">Next</a>");
+			}
+		}else {
+			tmp.append("<a href=\"#\" class=\"prev disabled\">Prevous</a>");
+			tmp.append("<a href=\"#\" class=\"active\">1</a>");
+			tmp.append("<a href=\"#\" class=\"next disabled\">Next</a>");
+		}
+		
+		tmp.append("</div>");
+		tmp.append("</div>");//text-start
+		
+		return tmp;
+	}
+	
+	public static ArrayList<String> viewDetail(
+			Sextet<ArrayList<ArticleObject>, 
+				ArrayList<ArticleObject>, 
+				ArrayList<CategoryObject>, 
+				HashMap<String, Integer>, 
+				Integer, 
+				ArrayList<ArticleObject>> datas) {
+		
+		ArrayList<String> view = new ArrayList<>();
+
+		ArrayList<ArticleObject> items = datas.getValue0();
+		ArrayList<ArticleObject> most_items = datas.getValue1();
+		ArrayList<CategoryObject> cates = datas.getValue2();
+		HashMap<String, Integer> tags = datas.getValue3();
+		ArrayList<ArticleObject> pitems = datas.getValue5();
+		ArticleObject item = pitems.size() > 0 ? pitems.get(0) : null;
+		
+		
+		StringBuilder tmp = new StringBuilder();
+
+		tmp.append("<section class=\"single-post-content\">");
+		tmp.append("<div class=\"container\">");
+		tmp.append("<div class=\"row\">");
+
+		tmp.append("<div class=\"col-md-9 post-content\" data-aos=\"fade-up\">");
+		if(item != null) {
+			tmp.append("<div class=\"single-post\">");
+			tmp.append("<div class=\"post-meta\"><span class=\"date\">"+item.getCategory_name()+"</span> <span class=\"mx-1\">&bullet;</span> <span>"+item.getArticle_created_date()+"</span></div>");
+			tmp.append("<h1 class=\"mb-5\">"+item.getArticle_title()+"</h1>");
+			tmp.append("");
+			tmp.append("");
+			tmp.append("");
+			tmp.append("");
+			tmp.append("</div>");
+		}
+		tmp.append("</div>");//col-md-9
+
+		//SideBar
+		tmp.append(ArticleLibrary.viewSidebar(items, most_items, cates, tags));
+
+		tmp.append("</div>");
+		tmp.append("</div>");
+		tmp.append("</section>");
+		view.add(tmp.toString());
+		return view;
 	}
 
 }

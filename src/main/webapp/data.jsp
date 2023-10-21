@@ -21,14 +21,16 @@ similar.setArticle_section_id((short)2);
 if(at != -1) {
 	
 	short cid = Utilities.getShortParam(request, "cid");
+	short p = Utilities.getShortPage(request, "page");
+	
 	similar.setArticle_category_id(cid);
-	ArrayList<String> news = ac.viewNew(new Triplet<>(similar, (short) 1, (byte) 10));
+	ArrayList<String> news = ac.viewNew(new Quartet<>(similar, p, (byte) 5, false));
 	if(news.size() > 0) {
 		//Gửi cấu trúc hiển thị vào phiên
 		session.setAttribute("news", news.get(0));
 	}
 } else {
-	ArrayList<String> postGrid = ac.viewPostGrid(new Triplet<>(similar, (short) 1, (byte) 5));
+	ArrayList<String> postGrid = ac.viewPostGrid(new Quartet<>(similar, (short) 1, (byte) 5, false));
 	
 	//Gửi cấu trúc hiển thị vào phiên
 	session.setAttribute("postGrid", postGrid);

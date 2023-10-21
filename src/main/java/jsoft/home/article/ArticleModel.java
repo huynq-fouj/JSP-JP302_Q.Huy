@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import org.javatuples.Pair;
 import org.javatuples.Quartet;
+import org.javatuples.Quintet;
+import org.javatuples.Sextet;
 import org.javatuples.Triplet;
 import org.javatuples.Unit;
 
@@ -62,14 +64,15 @@ public class ArticleModel {
 		return item;
 	}
 	
-	public Pair<ArrayList<ArticleObject>, ArrayList<ArticleObject>> getArticleObjects(Triplet<ArticleObject, Short, Byte> infors) {
+	public Pair<ArrayList<ArticleObject>, ArrayList<ArticleObject>> getArticleObjects(Quartet<ArticleObject, Short, Byte, Boolean> infors) {
 		ArrayList<ResultSet> res = this.a.getArticles(infors);
 		//Lấy danh sách bài viết mới nhất và bài viết xem nhiều nhất
 		return new Pair<>(this.getAritcleObjects(res.get(0)), this.getAritcleObjects(res.get(1)));
 	}
 	
-	public Quartet<ArrayList<ArticleObject>, ArrayList<ArticleObject>, ArrayList<CategoryObject>, HashMap<String, Integer>> getNewArticleObjects(Triplet<ArticleObject, Short, Byte> infors) {
+	public Sextet<ArrayList<ArticleObject>, ArrayList<ArticleObject>, ArrayList<CategoryObject>, HashMap<String, Integer>, Integer, ArrayList<ArticleObject>> getNewArticleObjects(Quartet<ArticleObject, Short, Byte, Boolean> infors) {
 		ArrayList<ResultSet> res = this.a.getArticles(infors);
+		boolean isDetail = infors.getValue3();
 		//Lấy danh sách bài viết mới nhất và bài viết xem nhiều nhất
 		ArrayList<CategoryObject> cates = new ArrayList<>();
 		CategoryObject cate = null;
@@ -120,7 +123,25 @@ public class ArticleModel {
 							.compareTo(3) < 0).map(e -> e.getKey())
 								.collect(Collectors.toList()));
 		
-		return new Quartet<>(this.getAritcleObjects(res.get(0)), this.getAritcleObjects(res.get(1)), cates, tags);
+		int total = 0;
+		if(!isDetail) {	
+			rs = res.get(5);//Tong so bai viet
+			if(rs != null) {
+				try {
+					if(rs.next()) {
+						total = rs.getInt("total");
+					}
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		}
+		//Baif vieets cos phaan trang
+		rs = res.get(4);
+		ArrayList<ArticleObject> articles = this.getAritcleObjects(rs);
+		//
+		return new Sextet<>(this.getAritcleObjects(res.get(0)), this.getAritcleObjects(res.get(1)), cates, tags, total, articles);
 	}
 	
 	private ArrayList<ArticleObject> getAritcleObjects(ResultSet rs){
