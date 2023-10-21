@@ -22,12 +22,22 @@ if(at != -1) {
 	
 	short cid = Utilities.getShortParam(request, "cid");
 	short p = Utilities.getShortPage(request, "page");
+	short id = Utilities.getShortParam(request, "id");
 	
 	similar.setArticle_category_id(cid);
-	ArrayList<String> news = ac.viewNew(new Quartet<>(similar, p, (byte) 5, false));
-	if(news.size() > 0) {
-		//Gửi cấu trúc hiển thị vào phiên
-		session.setAttribute("news", news.get(0));
+	similar.setArticle_id(id);
+	if(id > 0) {
+		ArrayList<String> detail = ac.viewDetail(new Quartet<>(similar, p, (byte) 5, true));
+		if(detail.size() > 0) {
+			//Gửi cấu trúc hiển thị vào phiên
+			session.setAttribute("news", detail.get(0));
+		}
+	} else {
+		ArrayList<String> news = ac.viewNew(new Quartet<>(similar, p, (byte) 5, false));
+		if(news.size() > 0) {
+			//Gửi cấu trúc hiển thị vào phiên
+			session.setAttribute("news", news.get(0));
+		}
 	}
 } else {
 	ArrayList<String> postGrid = ac.viewPostGrid(new Quartet<>(similar, (short) 1, (byte) 5, false));

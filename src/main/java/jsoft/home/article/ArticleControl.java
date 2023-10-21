@@ -49,4 +49,15 @@ public class ArticleControl {
 		return ArticleLibrary.viewNews(datas, infors);
 	}
 	
+	public ArrayList<String> viewDetail(Quartet<ArticleObject, Short, Byte, Boolean> infors) {
+		Sextet<
+		ArrayList<ArticleObject>, 
+		ArrayList<ArticleObject>, 
+		ArrayList<CategoryObject>, 
+		HashMap<String, Integer>, 
+		Integer, 
+		ArrayList<ArticleObject>> datas = this.am.getNewArticleObjects(infors);
+		return ArticleLibrary.viewDetail(datas);
+	}
+	
 }

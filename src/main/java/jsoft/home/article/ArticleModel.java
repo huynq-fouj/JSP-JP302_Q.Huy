@@ -67,7 +67,7 @@ public class ArticleModel {
 	public Pair<ArrayList<ArticleObject>, ArrayList<ArticleObject>> getArticleObjects(Quartet<ArticleObject, Short, Byte, Boolean> infors) {
 		ArrayList<ResultSet> res = this.a.getArticles(infors);
 		//Lấy danh sách bài viết mới nhất và bài viết xem nhiều nhất
-		return new Pair<>(this.getAritcleObjects(res.get(0)), this.getAritcleObjects(res.get(1)));
+		return new Pair<>(this.getArticleObjects(res.get(0)), this.getArticleObjects(res.get(1)));
 	}
 	
 	public Sextet<ArrayList<ArticleObject>, ArrayList<ArticleObject>, ArrayList<CategoryObject>, HashMap<String, Integer>, Integer, ArrayList<ArticleObject>> getNewArticleObjects(Quartet<ArticleObject, Short, Byte, Boolean> infors) {
@@ -139,12 +139,12 @@ public class ArticleModel {
 		}
 		//Baif vieets cos phaan trang
 		rs = res.get(4);
-		ArrayList<ArticleObject> articles = this.getAritcleObjects(rs);
+		ArrayList<ArticleObject> articles = this.getArticleObjects(rs);
 		//
-		return new Sextet<>(this.getAritcleObjects(res.get(0)), this.getAritcleObjects(res.get(1)), cates, tags, total, articles);
+		return new Sextet<>(this.getArticleObjects(res.get(0)), this.getArticleObjects(res.get(1)), cates, tags, total, articles);
 	}
 	
-	private ArrayList<ArticleObject> getAritcleObjects(ResultSet rs){
+	private ArrayList<ArticleObject> getArticleObjects(ResultSet rs){
 		ArrayList<ArticleObject> items = new ArrayList<>();
 		ArticleObject item = null;
 		if(rs != null) {
@@ -154,7 +154,7 @@ public class ArticleModel {
 					item.setArticle_id(rs.getInt("article_id"));
 					item.setArticle_title(rs.getString("article_title"));
 					item.setArticle_summary(rs.getString("article_summary"));
-					//item.setArticle_content(rs.getString("article_content"));
+					item.setArticle_content(rs.getString("article_content"));
 					item.setArticle_image(rs.getString("article_image"));
 					item.setArticle_created_date(rs.getString("article_created_date"));
 					item.setArticle_author_name(rs.getString("article_author_name"));

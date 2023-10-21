@@ -72,7 +72,9 @@ public class ArticleImpl extends BasicImpl implements Article {
 		sql.append("; ");
 		
 		if(isDetail) {
-			sql.append("SELECT COUNT(*) AS total FROM tblarticle ");
+			sql.append("SELECT * FROM tblarticle ");
+			sql.append("LEFT JOIN tblcategory ON article_category_id=category_id ");
+			sql.append("LEFT JOIN tblsection ON category_section_id=section_id ");
 			sql.append("WHERE article_delete=0 AND article_enable=1 ");
 			sql.append("AND article_id="+ similar.getArticle_id());
 			sql.append(";");

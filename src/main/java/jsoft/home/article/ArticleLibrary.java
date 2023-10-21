@@ -10,6 +10,7 @@ import org.javatuples.Sextet;
 import org.javatuples.Triplet;
 import org.javatuples.Unit;
 
+import jsoft.library.Utilities;
 import jsoft.objects.ArticleObject;
 import jsoft.objects.CategoryObject;
 
@@ -28,11 +29,11 @@ public class ArticleLibrary {
 			// Lấy bài viết mới nhất
 			ArticleObject item = items.get(0);
 			tmp.append("<div class=\"post-entry-1 lg\">");
-			tmp.append("<a href=\"#\"><img src=\"" + item.getArticle_image() + "\" alt=\"\" class=\"img-fluid\"></a>");
+			tmp.append("<a href=\"/home/tin-tuc/?id="+item.getArticle_id()+"\"><img src=\"" + item.getArticle_image() + "\" alt=\"\" class=\"img-fluid\"></a>");
 			tmp.append("<div class=\"post-meta\"><span class=\"date\">" + item.getCategory_name()
 					+ "</span> <span class=\"mx-1\">&bullet;</span> <span>" + item.getCategory_created_date()
 					+ "</span></div>");
-			tmp.append("<h2><a href=\"#\">" + item.getArticle_title() + "</a></h2>");
+			tmp.append("<h2><a href=\"/home/tin-tuc/?id="+item.getArticle_id()+"\">" + item.getArticle_title() + "</a></h2>");
 			tmp.append("<p class=\"mb-4 d-block\">" + item.getArticle_summary() + "</p>");
 			tmp.append("<div class=\"d-flex align-items-center author\">");
 			tmp.append("<div class=\"photo\"><img src=\"/home/img/person-1.jpg\" alt=\"\" class=\"img-fluid\"></div>");
@@ -388,10 +389,10 @@ public class ArticleLibrary {
 			tmp.append("<div class=\"single-post\">");
 			tmp.append("<div class=\"post-meta\"><span class=\"date\">"+item.getCategory_name()+"</span> <span class=\"mx-1\">&bullet;</span> <span>"+item.getArticle_created_date()+"</span></div>");
 			tmp.append("<h1 class=\"mb-5\">"+item.getArticle_title()+"</h1>");
-			tmp.append("");
-			tmp.append("");
-			tmp.append("");
-			tmp.append("");
+			tmp.append("<img src=\""+ item.getArticle_image() +"\" alt=\"\" class=\"img-fluid\">");
+			tmp.append("<p>");
+			tmp.append(Utilities.decode(item.getArticle_content()));
+			tmp.append("</p>");
 			tmp.append("</div>");
 		}
 		tmp.append("</div>");//col-md-9
